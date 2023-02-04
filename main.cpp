@@ -13,7 +13,7 @@ currency_value => the currency_to values
 */
 int arraySize, displayArraySizeFrom, displayArraySizeTo;
 string *currencies_from, *currencies_to;
-float *currency_value;
+float *currency_value,*currency_value_from;
 // this method for checking if the element value is in the array returned true if the value exists in the array
 bool in_array(string *array, string value, int size)
 {
@@ -32,6 +32,12 @@ float getCurrencyPrice(string *array, string value, int size)
 		if (array[i] == value)
 			return currency_value[i];
 	}
+	for (int i = 0; i < displayArraySizeFrom; i++)
+	{
+		if (currencies_from[i] == value)
+			return (-1*currency_value[i]);
+	}
+
 	return 0.0;
 }
 // this method for reading all currencies from the file.txt and append the values to the arrays in orderd way
@@ -55,6 +61,7 @@ void convertCurrencies(string filename)
 	currencies_from = new string[arraySize];
 	currencies_to = new string[arraySize];
 	currency_value = new float[arraySize];
+	currency_value_from = new float[arraySize];
 	int i0 = 0, i = 0;
 	displayArraySizeFrom = 0;
 	while (file >> from >> from_currency >> to >> to_currency)
@@ -65,6 +72,8 @@ void convertCurrencies(string filename)
 
 			currencies_from[displayArraySizeFrom] = from_currency;
 			displayArraySizeFrom = displayArraySizeFrom + 1;
+			currency_value_from[displayArraySizeFrom] = from;
+
 		}
 		// To make sure the currency_to values is not repeated
 		if (!in_array(currencies_to, to_currency, displayArraySizeTo))
@@ -121,8 +130,9 @@ x:
 	// this is function is for convert the string to uppercase to facilitate the currency names entering by the user
 	transform(from.begin(), from.end(), from.begin(), ::toupper);
 	// here we checked the name of the currency that entered by the user if its not found this block will re-asking the user for the currency name again
-	while (!in_array(currencies_from, from, displayArraySizeFrom))
+	while (!in_array(currencies_from, from, displayArraySizeFrom)&&!in_array(currencies_to, from, displayArraySizeTo))
 	{
+		cout<<!in_array(currencies_from, from, displayArraySizeFrom)<<"="<<!in_array(currencies_to, to, displayArraySizeTo)<<endl;
 		cout << "Please enter the correct currency you want to exchange from:" << endl;
 		cin >> from;
 		transform(from.begin(), from.end(), from.begin(), ::toupper);
@@ -131,7 +141,7 @@ x:
 	cout << "Please enter the currency you want to exchange to:" << endl;
 	cin >> to;
 	transform(to.begin(), to.end(), to.begin(), ::toupper);
-	while (!in_array(currencies_to, to, displayArraySizeTo))
+	while (!in_array(currencies_to, to, displayArraySizeTo) && !in_array(currencies_from, to, displayArraySizeFrom))
 	{
 		cout << "Please enter the correct currency you want to exchange to:" << endl;
 		cin >> to;
