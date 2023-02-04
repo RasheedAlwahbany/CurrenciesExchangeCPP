@@ -25,17 +25,17 @@ bool in_array(string *array, string value, int size)
 	return false;
 }
 // this method for returning the currency_to exchange value its returned 0.0 if the value is not in the array
-float getCurrencyPrice(string *array, string value, int size)
+float getCurrencyPrice(string *array, string value, int size,float mony)
 {
 	for (int i = 0; i < size; i++)
 	{
 		if (array[i] == value)
-			return currency_value[i];
+			return mony * currency_value[i];
 	}
 	for (int i = 0; i < displayArraySizeFrom; i++)
 	{
 		if (currencies_from[i] == value)
-			return (-1*currency_value[i]);
+			return (mony/currency_value[i]);
 	}
 
 	return 0.0;
@@ -151,11 +151,10 @@ x:
 	cout << "Please enter the currency amount you want to exchange:" << endl;
 	cin >> mony;
 	// this is line is to return the currency_to value for exchanging
-	result = getCurrencyPrice(currencies_to, to, displayArraySizeTo);
+	result = getCurrencyPrice(currencies_to, to, displayArraySizeTo,mony);
 	if (result != 0.0)
 	{
-		// here we are compute the currency exchange price result
-		result = result * mony;
+		
 		cout << "The result of exchanging from ( " << from << " ) currency to ( " << to << " ) was = " << result << endl;
 	}
 	else
