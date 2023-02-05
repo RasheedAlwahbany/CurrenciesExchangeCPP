@@ -7,35 +7,33 @@ using namespace std; // for compatibility with all input/output streams function
 // Declaring the app main arrays
 /*
 arraySize => the size of the all arrays
-displayArraySizeFrom => the size of the currencies_from array
-displayArraySizeTo => the size of the currencies_to array
+displayArraySize => the size of the currencies_from array
+displayArraySize => the size of the currencies array
 currency_value => the currency_to values
 */
-int arraySize, displayArraySizeFrom, displayArraySizeTo;
-string *currencies_from, *currencies_to;
-float *currency_value,*currency_value_from;
+int arraySize, displayArraySize;
+string *currencies,*currencies_exchange;
+float *currency_value;
 // this method for checking if the element value is in the array returned true if the value exists in the array
-bool in_array(string *array, string value, int size)
+bool in_array(string value, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		if (array[i] == value)
+		if (currencies[i] == value)
 			return true;
 	}
 	return false;
 }
 // this method for returning the currency_to exchange value its returned 0.0 if the value is not in the array
-float getCurrencyPrice(string *array, string value, int size,float mony)
+float getCurrencyPrice(string value_from,string value_to,float mony)
 {
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < displayArraySize; i++)
 	{
-		if (array[i] == value)
+		if (currencies_exchange[i] == (value_from+"->"+value_to)){
 			return mony * currency_value[i];
-	}
-	for (int i = 0; i < displayArraySizeFrom; i++)
-	{
-		if (currencies_from[i] == value)
-			return (mony/currency_value[i]);
+		}else if (currencies_exchange[i] == (value_to+"->"+value_from)){
+			return (mony / currency_value[i]);
+		}
 	}
 
 	return 0.0;
@@ -58,31 +56,27 @@ void convertCurrencies(string filename)
 	{
 		arraySize = arraySize + 1;
 	}
-	currencies_from = new string[arraySize];
-	currencies_to = new string[arraySize];
+	currencies = new string[arraySize];
 	currency_value = new float[arraySize];
-	currency_value_from = new float[arraySize];
+	currencies_exchange = new string[arraySize];
 	int i0 = 0, i = 0;
-	displayArraySizeFrom = 0;
+	displayArraySize = 0;
 	while (file >> from >> from_currency >> to >> to_currency)
 	{
-		// To make sure the currency_from values is not repeated
-		if (!in_array(currencies_from, from_currency, displayArraySizeFrom))
+		// To make sure the currency values is not repeated
+		if (!in_array(from_currency, displayArraySize))
 		{
-
-			currencies_from[displayArraySizeFrom] = from_currency;
-			displayArraySizeFrom = displayArraySizeFrom + 1;
-			currency_value_from[displayArraySizeFrom] = from;
-
+			currencies[displayArraySize] = from_currency;
+			displayArraySize = displayArraySize + 1;
 		}
-		// To make sure the currency_to values is not repeated
-		if (!in_array(currencies_to, to_currency, displayArraySizeTo))
+		if (!in_array(to_currency, displayArraySize))
 		{
-
-			currencies_to[displayArraySizeTo] = to_currency;
-			currency_value[displayArraySizeTo] = to;
-			displayArraySizeTo = displayArraySizeTo + 1;
+			currencies[displayArraySize] = to_currency;
+			displayArraySize = displayArraySize + 1;
 		}
+
+		currencies_exchange[i] = from_currency+"->"+to_currency;
+		currency_value[i] = to;
 
 		i = i + 1;
 	}
@@ -101,28 +95,17 @@ int main()
 	// here we called the convertCurrencies() function to get all the currencies from the file and initialize the arrays
 	convertCurrencies("ExchageRate.txt");
 	cout << "Welcome to Currencies Exchanger ^_^" << endl;
-	cout << "The currencies we have exchange from are:" << endl;
+	cout << "The currencies we have exchange between are:" << endl;
 	// this is block for displaying the currencies_from names to the user
-	for (int i = 0; i < displayArraySizeFrom; i++)
+	for (int i = 0; i < displayArraySize; i++)
 	{
 		if (i % 2 == 0)
 			cout << endl;
 		else
 			cout << "\t|\t";
-		cout << i << "- " << currencies_from[i];
+		cout << i << "- " << currencies[i];
 	}
-	cout << endl
-		 << "The currencies we have exchange to are:" << endl;
-	// this is block for displaying the currencies_to names to the user
-	for (int i = 0; i < displayArraySizeTo; i++)
-	{
-		if (i % 2 == 0)
-			cout << endl;
-		else
-			cout << "\t|\t";
-		cout << i << "- " << currencies_to[i];
-	}
-	cout << endl;
+	cout<<endl;
 // x: its point for relunching the user choices if the result is 0.0 its just for make exception if there is any error in the result
 x:
 	cout << "Please enter the currency you want to exchange from:" << endl;
@@ -130,18 +113,17 @@ x:
 	// this is function is for convert the string to uppercase to facilitate the currency names entering by the user
 	transform(from.begin(), from.end(), from.begin(), ::toupper);
 	// here we checked the name of the currency that entered by the user if its not found this block will re-asking the user for the currency name again
-	while (!in_array(currencies_from, from, displayArraySizeFrom)&&!in_array(currencies_to, from, displayArraySizeTo))
+	while (!in_array(from, displayArraySize))
 	{
-		cout<<!in_array(currencies_from, from, displayArraySizeFrom)<<"="<<!in_array(currencies_to, to, displayArraySizeTo)<<endl;
 		cout << "Please enter the correct currency you want to exchange from:" << endl;
 		cin >> from;
 		transform(from.begin(), from.end(), from.begin(), ::toupper);
 	}
 
-	cout << "Please enter the currency you want to exchange to:" << endl;
+	cout <<"Please enter the currency you want to exchange to:" << endl;
 	cin >> to;
 	transform(to.begin(), to.end(), to.begin(), ::toupper);
-	while (!in_array(currencies_to, to, displayArraySizeTo) && !in_array(currencies_from, to, displayArraySizeFrom))
+	while (!in_array(to, displayArraySize))
 	{
 		cout << "Please enter the correct currency you want to exchange to:" << endl;
 		cin >> to;
@@ -151,7 +133,7 @@ x:
 	cout << "Please enter the currency amount you want to exchange:" << endl;
 	cin >> mony;
 	// this is line is to return the currency_to value for exchanging
-	result = getCurrencyPrice(currencies_to, to, displayArraySizeTo,mony);
+	result = getCurrencyPrice(from, to,mony);
 	if (result != 0.0)
 	{
 		
