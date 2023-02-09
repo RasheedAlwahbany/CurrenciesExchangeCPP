@@ -6,7 +6,7 @@
 // include reading/writing files streams library
 #include "fstream"	 
 // include stdc++ library to transforming from string to uppercase/lowercase
-#include "stdc++.h"	 
+#include "../stdc++.h"	 
 // for making input/output streams easy to use instead of using std::cout
 using namespace std; 
 /*
